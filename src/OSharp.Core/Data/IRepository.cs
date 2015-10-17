@@ -25,7 +25,8 @@ namespace OSharp.Core.Data
     /// </summary>
     /// <typeparam name="TEntity">实体类型</typeparam>
     /// <typeparam name="TKey">主键类型</typeparam>
-    public interface IRepository<TEntity, TKey> : ILifetimeScopeDependency where TEntity : IEntity<TKey>
+    public interface IRepository<TEntity, TKey> : IScopeDependency 
+        where TEntity : IEntity<TKey>
     {
         #region 属性
 
@@ -60,15 +61,15 @@ namespace OSharp.Core.Data
         /// <summary>
         /// 以DTO为载体批量插入实体
         /// </summary>
-        /// <typeparam name="TAddDto">添加DTO类型</typeparam>
+        /// <typeparam name="TInputDto">添加DTO类型</typeparam>
         /// <param name="dtos">添加DTO信息集合</param>
         /// <param name="checkAction">添加信息合法性检查委托</param>
         /// <param name="updateFunc">由DTO到实体的转换委托</param>
         /// <returns>业务操作结果</returns>
-        OperationResult Insert<TAddDto>(ICollection<TAddDto> dtos,
-            Action<TAddDto> checkAction = null,
-            Func<TAddDto, TEntity, TEntity> updateFunc = null)
-            where TAddDto : IAddDto;
+        OperationResult Insert<TInputDto>(ICollection<TInputDto> dtos,
+            Action<TInputDto> checkAction = null,
+            Func<TInputDto, TEntity, TEntity> updateFunc = null)
+            where TInputDto : IInputDto<TKey>;
 
         /// <summary>
         /// 逻辑删除实体
@@ -195,7 +196,7 @@ namespace OSharp.Core.Data
         OperationResult Update<TEditDto>(ICollection<TEditDto> dtos,
             Action<TEditDto> checkAction = null,
             Func<TEditDto, TEntity, TEntity> updateFunc = null)
-            where TEditDto : IEditDto<TKey>;
+            where TEditDto : IInputDto<TKey>;
 
         /// <summary>
         /// 直接更新指定编号的数据，此方法不支持事务

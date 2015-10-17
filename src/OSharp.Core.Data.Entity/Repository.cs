@@ -16,7 +16,9 @@ using System.Threading.Tasks;
 
 using EntityFramework.Extensions;
 
+using OSharp.Core.Data.Entity.Properties;
 using OSharp.Core.Data.Extensions;
+using OSharp.Core.Mapping;
 using OSharp.Utility;
 using OSharp.Utility.Data;
 using OSharp.Utility.Extensions;
@@ -46,7 +48,7 @@ namespace OSharp.Core.Data.Entity
         /// <summary>
         /// 获取 当前单元操作对象
         /// </summary>
-        public IUnitOfWork UnitOfWork { get; }
+        public IUnitOfWork UnitOfWork { get; private set; }
 
         /// <summary>
         /// 获取 当前实体类型的查询数据集，数据将使用不跟踪变化的方式来查询
@@ -88,19 +90,19 @@ namespace OSharp.Core.Data.Entity
         /// <summary>
         /// 以DTO为载体批量插入实体
         /// </summary>
-        /// <typeparam name="TAddDto">添加DTO类型</typeparam>
+        /// <typeparam name="TInputDto">添加DTO类型</typeparam>
         /// <param name="dtos">添加DTO信息集合</param>
         /// <param name="checkAction">添加信息合法性检查委托</param>
         /// <param name="updateFunc">由DTO到实体的转换委托</param>
         /// <returns>业务操作结果</returns>
-        public OperationResult Insert<TAddDto>(ICollection<TAddDto> dtos,
-            Action<TAddDto> checkAction = null,
-            Func<TAddDto, TEntity, TEntity> updateFunc = null)
-            where TAddDto : IAddDto
+        public OperationResult Insert<TInputDto>(ICollection<TInputDto> dtos,
+            Action<TInputDto> checkAction = null,
+            Func<TInputDto, TEntity, TEntity> updateFunc = null)
+            where TInputDto : IInputDto<TKey>
         {
             dtos.CheckNotNull("dtos");
             List<string> names = new List<string>();
-            foreach (TAddDto dto in dtos)
+            foreach (TInputDto dto in dtos)
             {
                 try
                 {
@@ -347,7 +349,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 DeleteDirect 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("DeleteDirect"));
             }
             CheckEntityKey(key, "key");
             return DeleteDirect(m => m.Id.Equals(key));
@@ -362,7 +364,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 DeleteDirect 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("DeleteDirect"));
             }
             predicate.CheckNotNull("predicate");
             return _dbSet.Where(predicate).Delete();
@@ -391,7 +393,7 @@ namespace OSharp.Core.Data.Entity
         public OperationResult Update<TEditDto>(ICollection<TEditDto> dtos,
             Action<TEditDto> checkAction = null,
             Func<TEditDto, TEntity, TEntity> updateFunc = null)
-            where TEditDto : IEditDto<TKey>
+            where TEditDto : IInputDto<TKey>
         {
             dtos.CheckNotNull("dtos");
             List<string> names = new List<string>();
@@ -444,7 +446,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 UpdateDirect 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("UpdateDirect"));
             }
             CheckEntityKey(key, "key");
             updatExpression.CheckNotNull("updatExpression");
@@ -461,7 +463,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 UpdateDirect 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("UpdateDirect"));
             }
             predicate.CheckNotNull("predicate");
             updatExpression.CheckNotNull("updatExpression");
@@ -745,7 +747,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 DeleteDirectAsync 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("DeleteDirectAsync"));
             }
             CheckEntityKey(key, "key");
             return await DeleteDirectAsync(m => m.Id.Equals(key));
@@ -760,7 +762,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 DeleteDirectAsync 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("DeleteDirectAsync"));
             }
             predicate.CheckNotNull("predicate");
             return await _dbSet.Where(predicate).DeleteAsync();
@@ -788,7 +790,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 UpdateDirectAsync 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("UpdateDirectAsync"));
             }
             CheckEntityKey(key, "key");
             updatExpression.CheckNotNull("updatExpression");
@@ -805,7 +807,7 @@ namespace OSharp.Core.Data.Entity
         {
             if (UnitOfWork.TransactionEnabled)
             {
-                throw new NotSupportedException("仓储中的 UpdateDirectAsync 方法不支持事务操作");
+                throw new NotSupportedException(Resources.Repository_MethodNotSupportedTransaction.FormatWith("UpdateDirectAsync"));
             }
             predicate.CheckNotNull("predicate");
             updatExpression.CheckNotNull("updatExpression");

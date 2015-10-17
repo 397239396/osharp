@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 
 using OSharp.Core.Context;
 using OSharp.Core.Data.Entity;
+using OSharp.Core.Dependency;
+using OSharp.Core.Mapping;
 using OSharp.Core.Security;
 using OSharp.Demo.Dtos.Security;
 using OSharp.Utility;
@@ -51,12 +53,12 @@ namespace OSharp.Demo.Services
         /// <summary>
         /// 添加功能信息信息
         /// </summary>
-        /// <param name="dtos">要添加的功能信息DTO信息</param>
+        /// <param name="inputDtos">要添加的功能信息DTO信息</param>
         /// <returns>业务操作结果</returns>
-        public OperationResult AddFunctions(params FunctionDto[] dtos)
+        public OperationResult AddFunctions(params FunctionInputDto[] inputDtos)
         {
-            dtos.CheckNotNull("dtos");
-            OperationResult result = FunctionRepository.Insert(dtos,
+            inputDtos.CheckNotNull("dtos");
+            OperationResult result = FunctionRepository.Insert(inputDtos,
                 dto =>
                 {
                     if (dto.Url.IsNullOrWhiteSpace())
@@ -83,7 +85,8 @@ namespace OSharp.Demo.Services
                 });
             if (result.ResultType == OperationResultType.Success)
             {
-                OSharpContext.Current.FunctionHandler.RefreshCache();
+                IFunctionHandler handler = ServiceProvider.GetService<IFunctionHandler>();
+                handler.RefreshCache();
             }
             return result;
         }
@@ -91,14 +94,14 @@ namespace OSharp.Demo.Services
         /// <summary>
         /// 更新功能信息信息
         /// </summary>
-        /// <param name="dtos">包含更新信息的功能信息DTO信息</param>
+        /// <param name="inputDtos">包含更新信息的功能信息DTO信息</param>
         /// <returns>业务操作结果</returns>
-        public OperationResult EditFunctions(params FunctionDto[] dtos)
+        public OperationResult EditFunctions(params FunctionInputDto[] inputDtos)
         {
-            dtos.CheckNotNull("dtos");
+            inputDtos.CheckNotNull("dtos");
             List<string> names = new List<string>();
             FunctionRepository.UnitOfWork.TransactionEnabled = true;
-            foreach (FunctionDto dto in dtos)
+            foreach (FunctionInputDto dto in inputDtos)
             {
                 if (FunctionRepository.CheckExists(m => m.Name == dto.Name, dto.Id))
                 {
@@ -136,7 +139,8 @@ namespace OSharp.Demo.Services
                 : new OperationResult(OperationResultType.NoChanged);
             if (result.ResultType == OperationResultType.Success)
             {
-                OSharpContext.Current.FunctionHandler.RefreshCache();
+                IFunctionHandler handler = ServiceProvider.GetService<IFunctionHandler>();
+                handler.RefreshCache();
             }
             return result;
         }
@@ -171,7 +175,8 @@ namespace OSharp.Demo.Services
                 : new OperationResult(OperationResultType.NoChanged);
             if (result.ResultType == OperationResultType.Success)
             {
-                OSharpContext.Current.FunctionHandler.RefreshCache();
+                IFunctionHandler handler = ServiceProvider.GetService<IFunctionHandler>();
+                handler.RefreshCache();
             }
             return result;
         }

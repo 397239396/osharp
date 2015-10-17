@@ -18,9 +18,8 @@ using OSharp.Demo.Contracts;
 using OSharp.Utility;
 using OSharp.Utility.Data;
 using OSharp.Utility.Filter;
-using OSharp.Web.Mvc.Binders;
 using OSharp.Web.Mvc.Security;
-using OSharp.Web.UI;
+using OSharp.Web.Mvc.UI;
 
 
 namespace OSharp.Demo.Web.Areas.Admin.Controllers
@@ -124,7 +123,6 @@ namespace OSharp.Demo.Web.Areas.Admin.Controllers
         public ActionResult SystemLogs()
         {
             return Content("数据日志");
-            return View();
         }
 
         #endregion
